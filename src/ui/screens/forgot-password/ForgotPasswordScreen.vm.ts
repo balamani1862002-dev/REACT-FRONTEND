@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { apiClient } from '../../../core/api/apiClient';
 import { logger } from '../../../core/logger/logger';
 import { AppError } from '../../../core/error/AppError';
-import { mockDelay, findUserByEmail } from '../../../core/mock/mockData';
 
 export const useForgotPasswordViewModel = () => {
   const [email, setEmail] = useState('');
@@ -31,20 +31,8 @@ export const useForgotPasswordViewModel = () => {
       setLoading(true);
       logger.log('ForgotPasswordVM', 'Password reset request', { email });
 
-      // Simulate API call with mock data
-      await mockDelay(1500);
+      await apiClient.post('/auth/forgot-password', { email });
 
-      // Check if user exists in mock data
-      const user = findUserByEmail(email);
-      
-      if (!user) {
-        // For security, don't reveal if email exists or not
-        logger.log('ForgotPasswordVM', 'Email not found in system', { email });
-      } else {
-        logger.log('ForgotPasswordVM', 'Password reset email would be sent', { email });
-      }
-
-      // Always show success message (security best practice)
       setSuccess(true);
       logger.log('ForgotPasswordVM', 'Password reset request successful');
 

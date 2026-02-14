@@ -16,7 +16,7 @@ export const AnalyticsScreen: React.FC = () => {
     );
   }
 
-  const { categoryBreakdown, monthlyTrends, yearlyComparison, incomeVsExpense } = state;
+  const { categoryBreakdown, yearlyComparison, incomeVsExpense } = state;
 
   const pieColors = [
     'bg-royal-purple',
@@ -272,23 +272,21 @@ export const AnalyticsScreen: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
         <Card>
           <div className="text-center">
-            <div className="text-cool-gray text-sm mb-2">Total Transactions</div>
-            <div className="text-3xl font-bold text-royal-purple">{state.transactions.length}</div>
+            <div className="text-cool-gray text-sm mb-2">Total Income</div>
+            <div className="text-3xl font-bold text-finance-income">₹{incomeVsExpense.income.toFixed(2)}</div>
           </div>
         </Card>
         <Card>
           <div className="text-center">
-            <div className="text-cool-gray text-sm mb-2">Average Transaction</div>
-            <div className="text-3xl font-bold text-royal-purple">
-              ₹{(state.transactions.reduce((sum, t) => sum + t.amount, 0) / state.transactions.length).toFixed(2)}
-            </div>
+            <div className="text-cool-gray text-sm mb-2">Total Expense</div>
+            <div className="text-3xl font-bold text-finance-expense">₹{incomeVsExpense.expense.toFixed(2)}</div>
           </div>
         </Card>
         <Card>
           <div className="text-center">
-            <div className="text-cool-gray text-sm mb-2">Largest Transaction</div>
-            <div className="text-3xl font-bold text-royal-purple">
-              ₹{Math.max(...state.transactions.map(t => t.amount)).toFixed(2)}
+            <div className="text-cool-gray text-sm mb-2">Net Savings</div>
+            <div className={`text-3xl font-bold ${incomeVsExpense.income - incomeVsExpense.expense >= 0 ? 'text-finance-income' : 'text-finance-expense'}`}>
+              ₹{(incomeVsExpense.income - incomeVsExpense.expense).toFixed(2)}
             </div>
           </div>
         </Card>

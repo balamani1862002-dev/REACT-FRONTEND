@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
+import { apiClient } from '../../../core/api/apiClient';
 import { logger } from '../../../core/logger/logger';
-import { TransactionSummary } from '../../../models/transaction.model';
-import { mockTodos, mockTransactionSummary, mockDelay } from '../../../core/mock/mockData';
+import { AppError } from '../../../core/error/AppError';
 
 interface DashboardStats {
   totalTodos: number;
@@ -27,23 +27,15 @@ export const useDashboardViewModel = () => {
       setLoading(true);
       logger.log('DashboardVM', 'Fetching dashboard data');
 
-      await mockDelay(500);
-
-      const completedCount = mockTodos.filter(t => t.status === 'completed').length;
-
-      setStats({
-        totalTodos: mockTodos.length,
-        completedTodos: completedCount,
-        totalIncome: mockTransactionSummary.totalIncome,
-        totalExpense: mockTransactionSummary.totalExpense,
-        currentBalance: mockTransactionSummary.currentBalance,
-      });
+      const response = await apiClient.get<DashboardStats>('/dashboard/stats');
+      setStats(response);
 
       logger.log('DashboardVM', 'Dashboard data loaded');
       setError('');
     } catch (err) {
-      logger.error('DashboardVM', 'Failed to load dashboard', err);
-      setError('Failed to load dashboard');
+      const appError = err instanceof AppError ? err : new AppError('Failed to load dashboard');
+      logger.error('DashboardVM', 'Failed to load dashboard', appError);
+      setError(appError.message);
     } finally {
       setLoading(false);
     }

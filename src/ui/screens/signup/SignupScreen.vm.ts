@@ -29,12 +29,13 @@ export const useSignupViewModel = () => {
 
       const request: SignupRequest = { name, email, password, phone };
       const response = await apiClient.post<AuthResponse>('/auth/signup', request);
-
+      debugger
       localStorage.setItem(appConfig.tokenKey, response.token);
       logger.log('SignupVM', 'Signup successful');
       
       navigate('/welcome');
     } catch (err) {
+      debugger
       const appError = err instanceof AppError ? err : new AppError('Signup failed');
       setError(appError.message);
       logger.error('SignupVM', 'Signup failed', appError);

@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
+import { apiClient } from '../../../core/api/apiClient';
 import { logger } from '../../../core/logger/logger';
+import { AppError } from '../../../core/error/AppError';
 import { Transaction, CreateTransactionRequest, TransactionSummary } from '../../../models/transaction.model';
-import { mockTransactions, mockTransactionSummary, mockDelay } from '../../../core/mock/mockData';
 
 const ITEMS_PER_PAGE = 5;
 
@@ -33,17 +34,22 @@ export const useMoneyViewModel = () => {
       setLoading(true);
       logger.log('MoneyVM', 'Fetching transactions');
       
-      await mockDelay(500);
-      setAllTransactions([...mockTransactions]);
-      setSummary({ ...mockTransactionSummary });
-      updateDisplayedTransactions([...mockTransactions], 1);
+      const [transactions, summaryData] = await Promise.all([
+        apiClient.get<Transaction[]>('/transactions'),
+        apiClient.get<TransactionSummary>('/transactions/summary')
+      ]);
+      
+      setAllTransactions(transactions);
+      setSummary(summaryData);
+      updateDisplayedTransactions(transactions, 1);
       setCurrentPage(1);
       
       logger.log('MoneyVM', 'Transactions loaded');
       setError('');
     } catch (err) {
-      logger.error('MoneyVM', 'Failed to load transactions', err);
-      setError('Failed to load transactions');
+      const appError = err instanceof AppError ? err : new AppError('Failed to load transactions');
+      logger.error('MoneyVM', 'Failed to load transactions', appError);
+      setError(appError.message);
     } finally {
       setLoading(false);
     }
@@ -54,15 +60,15 @@ export const useMoneyViewModel = () => {
       setLoadingMore(true);
       logger.log('MoneyVM', 'Loading more transactions');
       
-      await mockDelay(300);
       const nextPage = currentPage + 1;
       updateDisplayedTransactions(allTransactions, nextPage);
       setCurrentPage(nextPage);
       
       logger.log('MoneyVM', 'More transactions loaded');
     } catch (err) {
-      logger.error('MoneyVM', 'Failed to load more transactions', err);
-      setError('Failed to load more transactions');
+      const appError = err instanceof AppError ? err : new AppError('Failed to load more transactions');
+      logger.error('MoneyVM', 'Failed to load more transactions', appError);
+      setError(appError.message);
     } finally {
       setLoadingMore(false);
     }
@@ -72,37 +78,23 @@ export const useMoneyViewModel = () => {
     try {
       logger.log('MoneyVM', 'Creating transaction');
       
-      await mockDelay(300);
-      const newTransaction: Transaction = {
-        id: Date.now().toString(),
-        ...request,
-        createdAt: new Date().toISOString(),
-      };
+      const newTransaction = await apiClient.post<Transaction>('/transactions', request);
       
       const updatedTransactions = [newTransaction, ...allTransactions];
       setAllTransactions(updatedTransactions);
       updateDisplayedTransactions(updatedTransactions, currentPage);
       
-      // Recalculate summary
-      const totalIncome = updatedTransactions
-        .filter(t => t.type === 'income')
-        .reduce((sum, t) => sum + t.amount, 0);
-      const totalExpense = updatedTransactions
-        .filter(t => t.type === 'expense')
-        .reduce((sum, t) => sum + t.amount, 0);
-      
-      setSummary({
-        totalIncome,
-        totalExpense,
-        currentBalance: totalIncome - totalExpense,
-      });
+      // Fetch updated summary
+      const summaryData = await apiClient.get<TransactionSummary>('/transactions/summary');
+      setSummary(summaryData);
       
       setIsModalOpen(false);
       logger.log('MoneyVM', 'Transaction created');
       setError('');
     } catch (err) {
-      logger.error('MoneyVM', 'Failed to create transaction', err);
-      setError('Failed to create transaction');
+      const appError = err instanceof AppError ? err : new AppError('Failed to create transaction');
+      logger.error('MoneyVM', 'Failed to create transaction', appError);
+      setError(appError.message);
     }
   };
 
@@ -110,30 +102,22 @@ export const useMoneyViewModel = () => {
     try {
       logger.log('MoneyVM', 'Deleting transaction', { id });
       
-      await mockDelay(300);
+      await apiClient.delete(`/transactions/${id}`);
+      
       const updatedTransactions = allTransactions.filter(t => t.id !== id);
       setAllTransactions(updatedTransactions);
       updateDisplayedTransactions(updatedTransactions, currentPage);
       
-      // Recalculate summary
-      const totalIncome = updatedTransactions
-        .filter(t => t.type === 'income')
-        .reduce((sum, t) => sum + t.amount, 0);
-      const totalExpense = updatedTransactions
-        .filter(t => t.type === 'expense')
-        .reduce((sum, t) => sum + t.amount, 0);
-      
-      setSummary({
-        totalIncome,
-        totalExpense,
-        currentBalance: totalIncome - totalExpense,
-      });
+      // Fetch updated summary
+      const summaryData = await apiClient.get<TransactionSummary>('/transactions/summary');
+      setSummary(summaryData);
       
       logger.log('MoneyVM', 'Transaction deleted');
       setError('');
     } catch (err) {
-      logger.error('MoneyVM', 'Failed to delete transaction', err);
-      setError('Failed to delete transaction');
+      const appError = err instanceof AppError ? err : new AppError('Failed to delete transaction');
+      logger.error('MoneyVM', 'Failed to delete transaction', appError);
+      setError(appError.message);
     }
   };
 

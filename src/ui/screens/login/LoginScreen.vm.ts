@@ -1,54 +1,48 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { apiClient } from '../../../core/api/apiClient';
 import { logger } from '../../../core/logger/logger';
 import { AppError } from '../../../core/error/AppError';
 import { appConfig } from '../../../core/config/appConfig';
-import { mockDelay, validateCredentials, mockAuthResponse } from '../../../core/mock/mockData';
+import { LoginRequest, AuthResponse } from '../../../models/auth.model';
+import { useToast } from '../../../core/context/ToastContext';
+import { getUserFriendlyMessage, getSuccessMessage } from '../../../core/utils/messageMapper';
 
 export const useLoginViewModel = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
   const navigate = useNavigate();
+  const toast = useToast();
 
   const handleLogin = async () => {
     try {
-      setError('');
-      
       if (!email || !password) {
-        setError('Please fill in all fields');
+        toast.showWarning('Please fill in all fields');
         return;
       }
 
       setLoading(true);
       logger.log('LoginVM', 'User login attempt', { email });
 
-      // Simulate API call with mock data
-      await mockDelay(1000);
-
-      // Validate credentials using mock data
-      const user = validateCredentials(email, password);
-
-      if (!user) {
-        throw new AppError('Invalid email or password', 401, 'AUTH_FAILED');
-      }
-
-      // Generate mock auth response
-      const response = mockAuthResponse(user);
-
+      const request: LoginRequest = { email, password };
+      const response = await apiClient.post<AuthResponse>('/auth/login', request);
+      debugger
       localStorage.setItem(appConfig.tokenKey, response.token);
-      logger.log('LoginVM', 'Login successful', { userId: user.id, role: user.role });
+      logger.log('LoginVM', 'Login successful');
       
-      // Navigate based on role
-      if (user.role === 'admin') {
+      toast.showSuccess(getSuccessMessage('login'));
+      
+      // Navigate based on role from response
+      if (response.user.role === 'admin') {
         navigate('/admin');
       } else {
         navigate('/dashboard');
       }
     } catch (err) {
       const appError = err instanceof AppError ? err : new AppError('Login failed');
-      setError(appError.message);
+      const friendlyMessage = getUserFriendlyMessage(appError.message);
+      toast.showError(friendlyMessage);
       logger.error('LoginVM', 'Login failed', appError);
     } finally {
       setLoading(false);
@@ -59,7 +53,6 @@ export const useLoginViewModel = () => {
     state: {
       email,
       password,
-      error,
     },
     loading,
     actions: {
