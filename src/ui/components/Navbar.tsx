@@ -7,6 +7,7 @@ import { User } from '../../models/auth.model';
 
 export const Navbar: React.FC = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [profileImage, setProfileImage] = useState('');
   const [userName, setUserName] = useState('');
   const navigate = useNavigate();
@@ -63,22 +64,22 @@ export const Navbar: React.FC = () => {
 
   return (
     <nav className="bg-white shadow-lg border-b border-light-lavender">
-      <div className="px-6">
+      <div className="px-4 sm:px-6">
         <div className="flex justify-between items-center h-16">
           {/* Logo - Left Side */}
           <Link to="/dashboard" className="flex items-center space-x-2 group">
             <div className="p-2 bg-gradient-to-br from-royal-purple to-soft-lavender rounded-lg group-hover:scale-110 transition-transform">
-              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
-            <span className="text-xl font-bold bg-gradient-to-r from-royal-purple to-soft-lavender bg-clip-text text-transparent">
+            <span className="text-lg sm:text-xl font-bold bg-gradient-to-r from-royal-purple to-soft-lavender bg-clip-text text-transparent hidden sm:inline">
               Money Manager
             </span>
           </Link>
 
-          {/* Navigation Links - Right Side */}
-          <div className="flex items-center gap-2">
+          {/* Desktop Navigation Links - Hidden on mobile */}
+          <div className="hidden md:flex items-center gap-2">
             <Link 
               to="/todos" 
               className="flex items-center gap-2 px-4 py-2 text-deep-indigo hover:text-royal-purple hover:bg-soft-lilac rounded-lg transition-all"
@@ -179,7 +180,84 @@ export const Navbar: React.FC = () => {
               )}
             </div>
           </div>
+
+          {/* Mobile Menu Button */}
+          <button
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className="md:hidden p-2 text-deep-indigo hover:text-royal-purple hover:bg-soft-lilac rounded-lg transition-all"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              {isMobileMenuOpen ? (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              ) : (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              )}
+            </svg>
+          </button>
         </div>
+
+        {/* Mobile Menu */}
+        {isMobileMenuOpen && (
+          <div className="md:hidden pb-4 border-t border-light-lavender mt-2">
+            <Link 
+              to="/todos" 
+              className="flex items-center gap-3 px-4 py-3 text-deep-indigo hover:bg-soft-lilac rounded-lg transition-all mt-2"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+              </svg>
+              <span className="font-medium">Todos</span>
+            </Link>
+
+            <Link 
+              to="/money" 
+              className="flex items-center gap-3 px-4 py-3 text-deep-indigo hover:bg-soft-lilac rounded-lg transition-all"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+              </svg>
+              <span className="font-medium">Money Track</span>
+            </Link>
+
+            <Link 
+              to="/profile" 
+              className="flex items-center gap-3 px-4 py-3 text-deep-indigo hover:bg-soft-lilac rounded-lg transition-all"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              <div className="w-8 h-8 bg-gradient-to-br from-royal-purple to-soft-lavender rounded-full flex items-center justify-center overflow-hidden border-2 border-royal-purple">
+                {profileImage ? (
+                  <img 
+                    src={profileImage} 
+                    alt={userName} 
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  </svg>
+                )}
+              </div>
+              <span className="font-medium">Profile</span>
+            </Link>
+
+            <div className="border-t border-light-lavender my-2"></div>
+
+            <button
+              onClick={() => {
+                handleSignOut();
+                setIsMobileMenuOpen(false);
+              }}
+              className="flex items-center gap-3 px-4 py-3 text-finance-expense hover:bg-red-50 rounded-lg transition-all w-full"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+              </svg>
+              <span className="font-semibold">Sign Out</span>
+            </button>
+          </div>
+        )}
       </div>
     </nav>
   );
