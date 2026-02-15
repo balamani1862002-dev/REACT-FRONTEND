@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { appConfig } from '../../core/config/appConfig';
 import { apiClient } from '../../core/api/apiClient';
@@ -10,6 +10,7 @@ export const Navbar: React.FC = () => {
   const [profileImage, setProfileImage] = useState('');
   const [userName, setUserName] = useState('');
   const navigate = useNavigate();
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     fetchUserProfile();
@@ -25,6 +26,23 @@ export const Navbar: React.FC = () => {
       window.removeEventListener('profileUpdated', handleProfileUpdate);
     };
   }, []);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false);
+      }
+    };
+
+    if (isDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isDropdownOpen]);
 
   const fetchUserProfile = async () => {
     try {
@@ -45,9 +63,9 @@ export const Navbar: React.FC = () => {
 
   return (
     <nav className="bg-white shadow-lg border-b border-light-lavender">
-      <div className="container mx-auto px-4">
+      <div className="px-6">
         <div className="flex justify-between items-center h-16">
-          {/* Logo */}
+          {/* Logo - Left Side */}
           <Link to="/dashboard" className="flex items-center space-x-2 group">
             <div className="p-2 bg-gradient-to-br from-royal-purple to-soft-lavender rounded-lg group-hover:scale-110 transition-transform">
               <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -59,7 +77,7 @@ export const Navbar: React.FC = () => {
             </span>
           </Link>
 
-          {/* Navigation Links */}
+          {/* Navigation Links - Right Side */}
           <div className="flex items-center gap-2">
             <Link 
               to="/todos" 
@@ -82,7 +100,7 @@ export const Navbar: React.FC = () => {
             </Link>
 
             {/* Profile Dropdown */}
-            <div className="relative">
+            <div className="relative" ref={dropdownRef}>
               <button
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                 className="flex items-center gap-2 px-4 py-2 text-deep-indigo hover:text-royal-purple hover:bg-soft-lilac rounded-lg transition-all"

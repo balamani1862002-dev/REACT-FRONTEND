@@ -2,6 +2,7 @@
 import { useTodosViewModel } from './TodosScreen.vm';
 import { Card } from '../../reusables/Card';
 import { Loader } from '../../reusables/Loader';
+import { RichTextEditor } from '../../reusables/RichTextEditor';
 import { Todo } from '../../../models/todo.model';
 
 export const TodosScreen: React.FC = () => {
@@ -157,7 +158,7 @@ export const TodosScreen: React.FC = () => {
                   className="w-5 h-5 text-todo-completed accent-todo-completed cursor-pointer"
                 />
               </div>
-              <p className="text-cool-gray text-sm mb-2">{todo.description}</p>
+              <p className="text-cool-gray text-sm mb-2" dangerouslySetInnerHTML={{ __html: todo.description }} />
               
               {todo.hasReminder && todo.reminderDate && (
                 <div className="flex items-center gap-2 mb-3 text-sm text-royal-purple">
@@ -223,12 +224,11 @@ export const TodosScreen: React.FC = () => {
               </div>
               <div className="mb-4">
                 <label className="block text-sm font-medium text-deep-indigo mb-1">Description</label>
-                <textarea
+                <RichTextEditor
                   value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Enter description"
-                  rows={3}
-                  className="w-full px-3 py-2 border border-light-lavender rounded-lg focus:outline-none focus:ring-2 focus:ring-royal-purple text-deep-indigo"
+                  onChange={setDescription}
+                  placeholder="Enter description..."
+                  className="border border-light-lavender rounded-lg"
                 />
               </div>
               

@@ -3,6 +3,7 @@ import { apiClient } from '../../../core/api/apiClient';
 import { logger } from '../../../core/logger/logger';
 import { AppError } from '../../../core/error/AppError';
 import { Todo, CreateTodoRequest, UpdateTodoRequest } from '../../../models/todo.model';
+import { useToast } from '../../../core/context/ToastContext';
 
 interface TodosResponse {
   todos: Todo[];
@@ -18,6 +19,7 @@ export const useTodosViewModel = () => {
   const [error, setError] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTodo, setEditingTodo] = useState<Todo | null>(null);
+  const { showToast } = useToast();
 
   const fetchTodos = async () => {
     try {
@@ -25,14 +27,15 @@ export const useTodosViewModel = () => {
       logger.log('TodosVM', 'Fetching todos');
       
       const response = await apiClient.get<TodosResponse>('/todos');
-      setTodos(response.todos);
+      setTodos(response.todos || []);
       
-      logger.log('TodosVM', 'Todos loaded');
+      logger.log('TodosVM', 'Todos loaded', { count: response.todos?.length || 0 });
       setError('');
     } catch (err) {
       const appError = err instanceof AppError ? err : new AppError('Failed to load todos');
       logger.error('TodosVM', 'Failed to load todos', appError);
       setError(appError.message);
+      showToast(appError.message, 'error');
     } finally {
       setLoading(false);
     }
@@ -40,19 +43,20 @@ export const useTodosViewModel = () => {
 
   const createTodo = async (request: CreateTodoRequest) => {
     try {
-      logger.log('TodosVM', 'Creating todo');
+      logger.log('TodosVM', 'Creating todo', request);
       
       const newTodo = await apiClient.post<Todo>('/todos', request);
-      debugger
       setTodos([...todos, newTodo]);
       setIsModalOpen(false);
       
-      logger.log('TodosVM', 'Todo created');
+      logger.log('TodosVM', 'Todo created successfully');
+      showToast('Todo created successfully', 'success');
       setError('');
     } catch (err) {
       const appError = err instanceof AppError ? err : new AppError('Failed to create todo');
       logger.error('TodosVM', 'Failed to create todo', appError);
       setError(appError.message);
+      showToast(appError.message, 'error');
     }
   };
 
@@ -65,12 +69,14 @@ export const useTodosViewModel = () => {
       
       setEditingTodo(null);
       setIsModalOpen(false);
-      logger.log('TodosVM', 'Todo updated');
+      logger.log('TodosVM', 'Todo updated successfully');
+      showToast('Todo updated successfully', 'success');
       setError('');
     } catch (err) {
       const appError = err instanceof AppError ? err : new AppError('Failed to update todo');
       logger.error('TodosVM', 'Failed to update todo', appError);
       setError(appError.message);
+      showToast(appError.message, 'error');
     }
   };
 
@@ -81,12 +87,14 @@ export const useTodosViewModel = () => {
       await apiClient.delete(`/todos/${id}`);
       setTodos(todos.filter(todo => todo.id !== id));
       
-      logger.log('TodosVM', 'Todo deleted');
+      logger.log('TodosVM', 'Todo deleted successfully');
+      showToast('Todo deleted successfully', 'success');
       setError('');
     } catch (err) {
       const appError = err instanceof AppError ? err : new AppError('Failed to delete todo');
       logger.error('TodosVM', 'Failed to delete todo', appError);
       setError(appError.message);
+      showToast(appError.message, 'error');
     }
   };
 
