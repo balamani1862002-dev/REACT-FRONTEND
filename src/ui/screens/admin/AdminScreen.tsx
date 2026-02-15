@@ -2,7 +2,6 @@
 import { useAdminViewModel } from './AdminScreen.vm';
 import { Card } from '../../reusables/Card';
 import { Loader } from '../../reusables/Loader';
-import { mockUserStats } from '../../../core/mock/mockData';
 
 export const AdminScreen: React.FC = () => {
   const { state, loading, actions } = useAdminViewModel();
@@ -68,7 +67,6 @@ export const AdminScreen: React.FC = () => {
             </thead>
             <tbody>
               {state.users.map((user) => {
-                const stats = mockUserStats[user.id] || { currentBalance: 0, remainingTodos: 0 };
                 return (
                   <tr 
                     key={user.id} 
@@ -77,8 +75,8 @@ export const AdminScreen: React.FC = () => {
                   >
                     <td className="py-4 px-4 text-deep-indigo font-medium">{user.name}</td>
                     <td className="py-4 px-4 text-cool-gray">{user.email}</td>
-                    <td className="py-4 px-4 text-finance-income font-semibold">₹{stats.currentBalance.toFixed(2)}</td>
-                    <td className="py-4 px-4 text-royal-purple font-semibold">{stats.remainingTodos}</td>
+                    <td className="py-4 px-4 text-finance-income font-semibold">₹{user.currentBalance.toFixed(2)}</td>
+                    <td className="py-4 px-4 text-royal-purple font-semibold">{user.remainingTodos}</td>
                     <td className="py-4 px-4 text-cool-gray">{new Date(user.createdAt).toLocaleDateString()}</td>
                     <td className="py-4 px-4">
                       <div className="flex items-center justify-center gap-2">

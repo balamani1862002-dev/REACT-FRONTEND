@@ -206,30 +206,6 @@ export const mockUsers: User[] = [
   },
 ];
 
-// Mock User Stats for Admin Panel
-export const mockUserStats: Record<string, { currentBalance: number; remainingTodos: number }> = {
-  '1': { currentBalance: 4640, remainingTodos: 3 },
-  '2': { currentBalance: 8200, remainingTodos: 5 },
-  '3': { currentBalance: 12500, remainingTodos: 0 },
-  '4': { currentBalance: 3200, remainingTodos: 7 },
-  '5': { currentBalance: 5800, remainingTodos: 2 },
-  '6': { currentBalance: 9100, remainingTodos: 4 },
-  '7': { currentBalance: 2500, remainingTodos: 8 },
-  '8': { currentBalance: 6700, remainingTodos: 1 },
-  '9': { currentBalance: 11200, remainingTodos: 6 },
-  '10': { currentBalance: 4100, remainingTodos: 3 },
-  '11': { currentBalance: 7800, remainingTodos: 9 },
-  '12': { currentBalance: 3900, remainingTodos: 2 },
-  '13': { currentBalance: 10500, remainingTodos: 5 },
-  '14': { currentBalance: 5200, remainingTodos: 4 },
-  '15': { currentBalance: 8900, remainingTodos: 7 },
-  '16': { currentBalance: 2800, remainingTodos: 1 },
-  '17': { currentBalance: 6300, remainingTodos: 3 },
-  '18': { currentBalance: 9800, remainingTodos: 6 },
-  '19': { currentBalance: 4500, remainingTodos: 2 },
-  '20': { currentBalance: 7200, remainingTodos: 8 },
-};
-
 // Mock Todos
 export const mockTodos: Todo[] = [
   {

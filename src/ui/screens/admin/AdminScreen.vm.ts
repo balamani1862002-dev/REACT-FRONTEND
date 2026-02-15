@@ -3,18 +3,28 @@ import { useNavigate } from 'react-router-dom';
 import { apiClient } from '../../../core/api/apiClient';
 import { logger } from '../../../core/logger/logger';
 import { AppError } from '../../../core/error/AppError';
-import { User } from '../../../models/auth.model';
 import { appConfig } from '../../../core/config/appConfig';
 
+interface AdminUser {
+  id: string;
+  name: string;
+  email: string;
+  phone: string | null;
+  role: 'user' | 'admin';
+  createdAt: string;
+  currentBalance: number;
+  remainingTodos: number;
+}
+
 interface UsersResponse {
-  users: User[];
+  users: AdminUser[];
   total: number;
   page: number;
   limit: number;
 }
 
 export const useAdminViewModel = () => {
-  const [users, setUsers] = useState<User[]>([]);
+  const [users, setUsers] = useState<AdminUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const navigate = useNavigate();
