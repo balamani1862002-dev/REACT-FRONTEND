@@ -4,6 +4,13 @@ import { logger } from '../../../core/logger/logger';
 import { AppError } from '../../../core/error/AppError';
 import { Todo, CreateTodoRequest, UpdateTodoRequest } from '../../../models/todo.model';
 
+interface TodosResponse {
+  todos: Todo[];
+  total: number;
+  page: number;
+  limit: number;
+}
+
 export const useTodosViewModel = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [filter, setFilter] = useState<'all' | 'completed' | 'important'>('all');
@@ -17,8 +24,8 @@ export const useTodosViewModel = () => {
       setLoading(true);
       logger.log('TodosVM', 'Fetching todos');
       
-      const response = await apiClient.get<Todo[]>('/todos');
-      setTodos(response);
+      const response = await apiClient.get<TodosResponse>('/todos');
+      setTodos(response.todos);
       
       logger.log('TodosVM', 'Todos loaded');
       setError('');
@@ -36,6 +43,7 @@ export const useTodosViewModel = () => {
       logger.log('TodosVM', 'Creating todo');
       
       const newTodo = await apiClient.post<Todo>('/todos', request);
+      debugger
       setTodos([...todos, newTodo]);
       setIsModalOpen(false);
       

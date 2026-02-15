@@ -19,6 +19,7 @@ export const apiClient = {
     try {
       logger.log('APIClient', `POST ${url}`);
       const response = await axiosInstance.post<T>(url, data);
+      debugger
       logger.log('APIClient', `POST ${url} - Success`);
       return response.data;
     } catch (error) {

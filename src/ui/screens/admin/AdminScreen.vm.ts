@@ -6,6 +6,13 @@ import { AppError } from '../../../core/error/AppError';
 import { User } from '../../../models/auth.model';
 import { appConfig } from '../../../core/config/appConfig';
 
+interface UsersResponse {
+  users: User[];
+  total: number;
+  page: number;
+  limit: number;
+}
+
 export const useAdminViewModel = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
@@ -17,8 +24,8 @@ export const useAdminViewModel = () => {
       setLoading(true);
       logger.log('AdminVM', 'Fetching users');
       
-      const response = await apiClient.get<User[]>('/admin/users');
-      setUsers(response);
+      const response = await apiClient.get<UsersResponse>('/admin/users');
+      setUsers(response.users);
       
       logger.log('AdminVM', 'Users loaded');
       setError('');

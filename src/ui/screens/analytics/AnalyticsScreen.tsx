@@ -18,7 +18,8 @@ export const AnalyticsScreen: React.FC = () => {
 
   const { categoryBreakdown, yearlyComparison, incomeVsExpense } = state;
 
-  const pieColors = [
+  const pieColors = ['#5B21B6', '#8B5CF6', '#EAB308', '#FACC15', '#16A34A', '#DC2626'];
+  const pieBgColors = [
     'bg-royal-purple',
     'bg-soft-lavender',
     'bg-rich-gold',
@@ -98,52 +99,72 @@ export const AnalyticsScreen: React.FC = () => {
         {/* Pie Chart - Category Breakdown */}
         <Card>
           <h3 className="text-lg font-semibold text-deep-indigo mb-4">Expense by Category</h3>
-          <div className="flex items-center justify-center mb-4">
-            <div className="relative w-48 h-48">
-              <svg viewBox="0 0 100 100" className="transform -rotate-90">
-                {categoryBreakdown.reduce((acc, cat, index) => {
-                  const startAngle = acc.angle;
-                  const angle = (cat.percentage / 100) * 360;
-                  const endAngle = startAngle + angle;
-                  
-                  const x1 = 50 + 40 * Math.cos((startAngle * Math.PI) / 180);
-                  const y1 = 50 + 40 * Math.sin((startAngle * Math.PI) / 180);
-                  const x2 = 50 + 40 * Math.cos((endAngle * Math.PI) / 180);
-                  const y2 = 50 + 40 * Math.sin((endAngle * Math.PI) / 180);
-                  
-                  const largeArc = angle > 180 ? 1 : 0;
-                  
-                  const colors = ['#5B21B6', '#8B5CF6', '#EAB308', '#FACC15', '#16A34A', '#DC2626'];
-                  
-                  acc.elements.push(
-                    <path
-                      key={index}
-                      d={`M 50 50 L ${x1} ${y1} A 40 40 0 ${largeArc} 1 ${x2} ${y2} Z`}
-                      fill={colors[index % colors.length]}
-                      className="hover:opacity-80 transition-opacity"
-                    />
-                  );
-                  
-                  acc.angle = endAngle;
-                  return acc;
-                }, { angle: 0, elements: [] as React.ReactElement[] }).elements}
-              </svg>
+          {categoryBreakdown.length === 0 ? (
+            <div className="flex items-center justify-center h-48 text-cool-gray">
+              <p>No expense data available</p>
             </div>
-          </div>
-          <div className="space-y-2">
-            {categoryBreakdown.map((cat, index) => (
-              <div key={cat.category} className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className={`w-3 h-3 rounded-full ${pieColors[index % pieColors.length]}`} />
-                  <span className="text-sm text-deep-indigo">{cat.category}</span>
-                </div>
-                <div className="text-right">
-                  <span className="text-sm font-semibold text-deep-indigo">₹{cat.amount.toFixed(2)}</span>
-                  <span className="text-xs text-cool-gray ml-2">({cat.percentage.toFixed(1)}%)</span>
+          ) : (
+            <>
+              <div className="flex items-center justify-center mb-4">
+                <div className="relative w-48 h-48">
+                  {categoryBreakdown.length === 1 && categoryBreakdown[0].percentage === 100 ? (
+                    // Special case: single category with 100% - render as full circle
+                    <svg viewBox="0 0 100 100">
+                      <circle
+                        cx="50"
+                        cy="50"
+                        r="40"
+                        fill={pieColors[0]}
+                        className="hover:opacity-80 transition-opacity"
+                      />
+                    </svg>
+                  ) : (
+                    // Multiple categories - render as pie slices
+                    <svg viewBox="0 0 100 100" className="transform -rotate-90">
+                      {categoryBreakdown.reduce((acc, cat, index) => {
+                        const startAngle = acc.angle;
+                        const angle = (cat.percentage / 100) * 360;
+                        const endAngle = startAngle + angle;
+                        
+                        const x1 = 50 + 40 * Math.cos((startAngle * Math.PI) / 180);
+                        const y1 = 50 + 40 * Math.sin((startAngle * Math.PI) / 180);
+                        const x2 = 50 + 40 * Math.cos((endAngle * Math.PI) / 180);
+                        const y2 = 50 + 40 * Math.sin((endAngle * Math.PI) / 180);
+                        
+                        const largeArc = angle > 180 ? 1 : 0;
+                        
+                        acc.elements.push(
+                          <path
+                            key={index}
+                            d={`M 50 50 L ${x1} ${y1} A 40 40 0 ${largeArc} 1 ${x2} ${y2} Z`}
+                            fill={pieColors[index % pieColors.length]}
+                            className="hover:opacity-80 transition-opacity"
+                          />
+                        );
+                        
+                        acc.angle = endAngle;
+                        return acc;
+                      }, { angle: 0, elements: [] as React.ReactElement[] }).elements}
+                    </svg>
+                  )}
                 </div>
               </div>
-            ))}
-          </div>
+              <div className="space-y-2">
+                {categoryBreakdown.map((cat, index) => (
+                  <div key={cat.category} className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className={`w-3 h-3 rounded-full ${pieBgColors[index % pieBgColors.length]}`} />
+                      <span className="text-sm text-deep-indigo">{cat.category}</span>
+                    </div>
+                    <div className="text-right">
+                      <span className="text-sm font-semibold text-deep-indigo">₹{cat.amount.toFixed(2)}</span>
+                      <span className="text-xs text-cool-gray ml-2">({cat.percentage.toFixed(1)}%)</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
         </Card>
       </div>
 

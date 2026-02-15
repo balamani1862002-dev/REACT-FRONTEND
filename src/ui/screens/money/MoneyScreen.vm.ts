@@ -6,6 +6,13 @@ import { Transaction, CreateTransactionRequest, TransactionSummary } from '../..
 
 const ITEMS_PER_PAGE = 5;
 
+interface TransactionsResponse {
+  transactions: Transaction[];
+  total: number;
+  page: number;
+  limit: number;
+}
+
 export const useMoneyViewModel = () => {
   const [allTransactions, setAllTransactions] = useState<Transaction[]>([]);
   const [displayedTransactions, setDisplayedTransactions] = useState<Transaction[]>([]);
@@ -34,14 +41,14 @@ export const useMoneyViewModel = () => {
       setLoading(true);
       logger.log('MoneyVM', 'Fetching transactions');
       
-      const [transactions, summaryData] = await Promise.all([
-        apiClient.get<Transaction[]>('/transactions'),
+      const [transactionsRes, summaryData] = await Promise.all([
+        apiClient.get<TransactionsResponse>('/transactions'),
         apiClient.get<TransactionSummary>('/transactions/summary')
       ]);
       
-      setAllTransactions(transactions);
+      setAllTransactions(transactionsRes.transactions);
       setSummary(summaryData);
-      updateDisplayedTransactions(transactions, 1);
+      updateDisplayedTransactions(transactionsRes.transactions, 1);
       setCurrentPage(1);
       
       logger.log('MoneyVM', 'Transactions loaded');

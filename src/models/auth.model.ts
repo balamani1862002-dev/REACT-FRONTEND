@@ -21,7 +21,7 @@ export interface User {
   email: string;
   phone?: string;
   address?: string;
-  profileImage?: string;
+  profile_image?: string;
   role: 'user' | 'admin';
   createdAt: string;
 }

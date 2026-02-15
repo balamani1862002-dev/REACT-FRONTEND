@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { apiClient } from '../../../core/api/apiClient';
 import { logger } from '../../../core/logger/logger';
 import { AppError } from '../../../core/error/AppError';
-import { Transaction } from '../../../models/transaction.model';
 
 interface CategoryData {
   category: string;
@@ -10,26 +9,31 @@ interface CategoryData {
   percentage: number;
 }
 
+interface MonthlyData {
+  month: string;
+  income: number;
+  expense: number;
+}
+
+interface YearlyData {
+  year: number;
+  income: number;
+  expense: number;
+  balance: number;
+  growth: number;
+}
+
 interface AnalyticsData {
   categoryBreakdown: CategoryData[];
-  yearlyComparison: Array<{
-    year: number;
-    income: number;
-    expense: number;
-    balance: number;
-    growth: number;
-  }>;
-  incomeVsExpense: {
-    income: number;
-    expense: number;
-  };
+  monthlyTrends: MonthlyData[];
+  yearlyComparison: YearlyData[];
 }
 
 export const useAnalyticsViewModel = () => {
   const [analytics, setAnalytics] = useState<AnalyticsData>({
     categoryBreakdown: [],
+    monthlyTrends: [],
     yearlyComparison: [],
-    incomeVsExpense: { income: 0, expense: 0 },
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -53,13 +57,22 @@ export const useAnalyticsViewModel = () => {
     }
   };
 
+  // Calculate income vs expense from yearly comparison
+  const getIncomeVsExpense = () => {
+    const income = analytics.yearlyComparison.reduce((sum, year) => sum + year.income, 0);
+    const expense = analytics.yearlyComparison.reduce((sum, year) => sum + year.expense, 0);
+    return { income, expense };
+  };
+
   useEffect(() => {
     fetchAnalytics();
   }, []);
 
   return {
     state: {
-      ...analytics,
+      categoryBreakdown: analytics.categoryBreakdown,
+      yearlyComparison: analytics.yearlyComparison,
+      incomeVsExpense: getIncomeVsExpense(),
       error,
     },
     loading,
